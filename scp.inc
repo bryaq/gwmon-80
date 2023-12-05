@@ -8,7 +8,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;CMDLP -- Small command processor loop
 ;
-;Get a character from the console device and immediately 
+;Get a character from the console device and immediately
 ;handle it by passing off to helper function.
 ;
 ;Falls through to ERROR if an invalid command is specified.
@@ -88,6 +88,23 @@ GETHEX:	CALL 	CIN
 GETHE2:	PUSH	H
 	MOV	H, A
 	CALL	CIN
+	MOV	L, A
+	CALL	HEXBYT
+	POP	H
+	JC	ERROR		;Invalid hex char, abort
+	RET
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;GETHEN -- Get byte from console as hex, don't echo
+;
+;pre: none
+;post: A register contains byte from hex input
+;post: Carry flag set if non hex character received
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+GETHEN:	CALL 	CINNE
+	PUSH	H
+	MOV	H, A
+	CALL	CINNE
 	MOV	L, A
 	CALL	HEXBYT
 	POP	H

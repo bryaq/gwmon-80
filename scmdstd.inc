@@ -74,36 +74,37 @@ INPCMD:	CALL	GETHEX
 ;
 ;post: Intel HEX file loaded, or error printed
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-LODCMD:	CALL	CRLF
-LODCM1:	CALL	CINNE
+LODCMD:	CALL	CINNE
 	CPI	':'
-	JNZ	LODCM1		;Wait for start colon
-	CALL	COUT		;Print start colon
-	CALL	GETHEX		;Get record length
+	JNZ	LODCMD		;Wait for start colon
+	CALL	GETHEN		;Get record length
 	JZ	LODCM4		;Length == 0, done
 	MOV	B, A		;Record length in B
 	MOV	C, A		;Start checksumming in C
 
-	CALL	GETADR		;HL = 16-bit starting address
+	CALL	GETHEN		;HL = 16-bit starting address
+	MOV	H, A
+	CALL	GETHEN
+	MOV	L, A
 	ADD	C		;A == L from GETADR
 	ADD	H
 	MOV	C, A		;Checksum
 
-	CALL	GETHEX		;Get record type
+	CALL	GETHEN		;Get record type
 	JNZ	LODCM4		;Not Record Type 00 (DATA), done
 
-LODCM2:	CALL	GETHEX		;This is the main record processing loop
+LODCM2:	CALL	GETHEN		;This is the main record processing loop
 	MOV	M, A		;Store char at HL
 	ADD	C
 	MOV	C, A		;Checksum
 	INX	H		;Move memory pointer up
 	DCR	B
 	JNZ	LODCM2		;Not done with the line
-LODCM3:	CALL	GETHEX		;Get checksum byte
+LODCM3:	CALL	GETHEN		;Get checksum byte
 	ADD	C
 	JNZ	CSUMER		;Checksum bad, print error
 	JMP	LODCMD		;Process more records
-LODCM4:	CALL	CIN		;Done getting data, eat chars
+LODCM4:	CALL	CINNE		;Done getting data, eat chars
 	CPI	LF
 	JNZ	LODCM4		;No LF, keep eating
 	RET			;Got LF, return to command loop
